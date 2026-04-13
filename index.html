@@ -669,14 +669,14 @@ class SignalDropout{
 const SCENARIOS=[
 /* === PHYSIOLOGISCH === */
 {id:'normal',lab:'Physiologisch – Normal',cat:'🟢 Physiologisch',cls:'Normal',
- base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ base:140,shvA:2.2,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
  wehD:[400,700],wehR:[900,1500],urgency:'normal',
  befund:'Baseline 140 bpm, Variabilität 5–15 bpm (STV >4.5 ms). Sporadische Akzelerationen >15 bpm/>15 s. Keine Dezelerationen.',
  ursachen:'Normales fetales Wohlbefinden, wacher/aktiver Fetus.',
  konsequenz:'Routineüberwachung fortsetzen.'},
 
 {id:'normal_aktiv',lab:'Physiologisch – Aktives Kind',cat:'🟢 Physiologisch',cls:'Normal',
- base:145,shvA:2.0,ltv:10,accR:0.005,decT:'none',fmR:0.004,mhrBase:78,mhrMode:'normal',dropout:'none',
+ base:145,shvA:2.8,ltv:10,accR:0.005,decT:'none',fmR:0.004,mhrBase:78,mhrMode:'normal',dropout:'none',
  wehD:[400,700],wehR:[900,1500],urgency:'normal',
  befund:'Baseline 145 bpm, gute Variabilität, häufige Akzelerationen und Kindsbewegungen.',
  ursachen:'Aktiver Fetus, lebhafte Kinematik.',
@@ -698,7 +698,7 @@ const SCENARIOS=[
 
 /* === PATHOLOGISCH === */
 {id:'tachy',lab:'Tachykardie',cat:'🔴 Pathologisch',cls:'Suspekt',
- base:175,shvA:1.2,ltv:6,accR:0.001,decT:'none',fmR:0.001,mhrBase:85,mhrMode:'normal',dropout:'none',
+ base:175,shvA:1.8,ltv:6,accR:0.001,decT:'none',fmR:0.001,mhrBase:85,mhrMode:'normal',dropout:'none',
  wehD:[400,700],wehR:[900,1500],urgency:'watch',
  befund:'Baseline 175 bpm (Tachykardie >160 bpm), erhaltene Variabilität, vereinzelt Akzelerationen.',
  ursachen:'Maternales Fieber/Chorioamnionitis, fetale Anämie, Medikamente (Tokolytika), fetale Hypoxie (kompensiert).',
@@ -720,14 +720,14 @@ const SCENARIOS=[
  konsequenz:'MBU (Fetalblutanalyse) wenn möglich. Bei pH <7.20 oder Laktat >4.8: sofortige Entbindung.'},
 
 {id:'early',lab:'Frühe Dezelerationen',cat:'🔴 Pathologisch',cls:'Suspekt',
- base:140,shvA:1.3,ltv:6,accR:0.001,decT:'early',earlyDepth:20,fmR:0.001,mhrBase:80,mhrMode:'normal',dropout:'none',
+ base:140,shvA:2.0,ltv:6,accR:0.001,decT:'early',earlyDepth:20,fmR:0.001,mhrBase:80,mhrMode:'normal',dropout:'none',
  wehD:[400,700],wehR:[900,1500],urgency:'watch',
  befund:'Baseline 140 bpm, erhaltene Variabilität. Frühe Dezelerationen: Nadir zeitgleich mit Wehengipfel, Amplitude 10–20 bpm.',
  ursachen:'Kopfkompression unter Wehen (vagaler Reflex). Häufig in der späten EP/AP.',
  konsequenz:'In der Regel benigne. Überwachung fortsetzen. Bei zusätzlichem SHV-Verlust: Reevaluation.'},
 
 {id:'late',lab:'Späte Dezelerationen',cat:'🔴 Pathologisch',cls:'Pathologisch',
- base:140,shvA:1.2,ltv:6,accR:0,decT:'late',fmR:0.0005,mhrBase:80,mhrMode:'normal',dropout:'none',
+ base:140,shvA:2.0,ltv:6,accR:0,decT:'late',fmR:0.0005,mhrBase:80,mhrMode:'normal',dropout:'none',
  wehD:[400,700],wehR:[900,1500],urgency:'urgent',
  befund:'Baseline 140 bpm, Variabilität erhalten. Späte Dezelerationen: Nadir 20–40 s nach Wehengipfel, Tiefe 20–40 bpm.',
  ursachen:'Uteroplazentare Insuffizienz, maternale Hypotension, Überstimulation.',
@@ -741,7 +741,7 @@ const SCENARIOS=[
  konsequenz:'NOTFALL. Sofortige Entbindung (Sectio/VE). Keine Zeitverzögerung durch MBU.'},
 
 {id:'variable',lab:'Variable Dezelerationen',cat:'🔴 Pathologisch',cls:'Suspekt',
- base:140,shvA:1.5,ltv:7,accR:0.002,decT:'variable',fmR:0.001,mhrBase:80,mhrMode:'normal',dropout:'none',
+ base:140,shvA:2.2,ltv:7,accR:0.002,decT:'variable',fmR:0.001,mhrBase:80,mhrMode:'normal',dropout:'none',
  wehD:[400,700],wehR:[900,1500],urgency:'watch',
  befund:'Baseline 140 bpm, gute Variabilität. Variable Dezelerationen: V-Form, variabel in Timing und Tiefe, teilweise mit Schultern (W-Muster).',
  ursachen:'Nabelschnurkompression (Oligohydramnion, Nabelschnurumschlingung).',
@@ -778,21 +778,21 @@ const SCENARIOS=[
 
 /* === GEBURT === */
 {id:'ep_normal',lab:'EP – Normales CTG',cat:'🤱 Geburt',cls:'Normal',
- base:140,shvA:1.5,ltv:7,accR:0.003,decT:'none',fmR:0.002,mhrBase:85,mhrMode:'normal',dropout:'none',
+ base:140,shvA:2.2,ltv:7,accR:0.003,decT:'none',fmR:0.002,mhrBase:85,mhrMode:'normal',dropout:'none',
  wehD:[350,550],wehR:[600,1000],urgency:'normal',
  befund:'Baseline 140 bpm, gute Variabilität, Akzelerationen vorhanden. Regelmäßige Wehentätigkeit (EP).',
  ursachen:'Normale Eröffnungsperiode.',
  konsequenz:'Überwachung fortsetzen. Routinemäßige Betreuung.'},
 
 {id:'ap_pressen',lab:'AP – Presswehen',cat:'🤱 Geburt',cls:'Suspekt',
- base:145,shvA:1.2,ltv:5,accR:0.001,decT:'variable',fmR:0.001,mhrBase:95,mhrMode:'normal',dropout:'none',
+ base:145,shvA:1.8,ltv:5,accR:0.001,decT:'variable',fmR:0.001,mhrBase:95,mhrMode:'normal',dropout:'none',
  wehD:[250,400],wehR:[150,350],urgency:'watch',
  befund:'Baseline 145 bpm, variable Dezelerationen mit Wehen synchron (Presswehen). Rasche Erholung.',
  ursachen:'Kopfkompression + Nabelschnurkompression unter Pressen. Physiologisch in der AP.',
  konsequenz:'Erwartungsgemäß. Bei rascher Erholung und erhaltener Baseline/Variabilität: fortsetzen.'},
 
 {id:'pressen_gut',lab:'Pressen – Gute Erholung',cat:'🤱 Geburt',cls:'Normal',
- base:140,shvA:1.4,ltv:6,accR:0.002,decT:'variable',fmR:0.001,mhrBase:92,mhrMode:'normal',dropout:'none',
+ base:140,shvA:2.0,ltv:6,accR:0.002,decT:'variable',fmR:0.001,mhrBase:92,mhrMode:'normal',dropout:'none',
  wehD:[250,400],wehR:[200,400],urgency:'normal',
  befund:'Variable Dezelerationen unter Presswehen mit prompter Erholung zur Baseline. Gute Variabilität zwischen den Wehen.',
  ursachen:'Normale Geburtsphysiologie in der Austreibungsperiode.',
@@ -836,7 +836,7 @@ const SCENARIOS=[
  konsequenz:'Transducer-Position korrigieren. Ultraschall zur Verifikation der fetalen Herzaktion. DD: IUFT ausschließen!'},
 
 {id:'adipos_toco',lab:'Adipositas – TOCO-Artefakt',cat:'⚠ Artefakte',cls:'Artefakt',
- base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ base:140,shvA:2.2,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
  tocoNoise:18,
  wehD:[400,700],wehR:[900,1500],urgency:'normal',
  befund:'FHR normal. TOCO-Kanal stark verrauscht, Wehen nur schlecht abgrenzbar.',
@@ -844,7 +844,7 @@ const SCENARIOS=[
  konsequenz:'Interne Wehenmessung (IUPC) erwägen. Alternativ: Palpation der Wehen + klinische Beurteilung.'},
 
 {id:'adipos_fhr',lab:'Adipositas – FHR-Verlust',cat:'⚠ Artefakte',cls:'Artefakt',
- base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'moderate',
+ base:140,shvA:2.2,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'moderate',
  wehD:[400,700],wehR:[900,1500],urgency:'watch',
  befund:'Intermittierender FHR-Signalverlust. Wenn abgeleitet: normale FHR.',
  ursachen:'Adipositas: Doppler-Signal geht durch fetale Bewegung und Bauchdecke verloren.',
@@ -858,14 +858,14 @@ const SCENARIOS=[
  konsequenz:'FSE anlegen. Intermittierender Ultraschall. Ggf. kontinuierliche Sonographie durch erfahrenen Untersucher.'},
 
 {id:'no_signal',lab:'Signalverlust',cat:'⚠ Artefakte',cls:'Artefakt',
- base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'severe',
+ base:140,shvA:2.2,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'severe',
  wehD:[400,700],wehR:[900,1500],urgency:'watch',
  befund:'Häufiger Signalverlust. Zwischen den Lücken: normale FHR.',
  ursachen:'Schlechte Transducer-Position, fetale Bewegungen, Polyhydramnion.',
  konsequenz:'Transducer repositionieren. Bei persistierendem Verlust: FSE. Nicht beurteilbares CTG ≠ normales CTG!'},
 
 {id:'doubling',lab:'Doubling-Artefakt',cat:'⚠ Artefakte',cls:'Artefakt',
- base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ base:140,shvA:2.2,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
  doubling:true,
  wehD:[400,700],wehR:[900,1500],urgency:'watch',
  befund:'Angezeigte FHR ~280 bpm (verdoppelt). Tatsächliche FHR normal (~140 bpm).',
@@ -874,8 +874,8 @@ const SCENARIOS=[
 
 /* === GEMINI === */
 {id:'gemini_both',lab:'Gemini – Konkordant',cat:'👶👶 Gemini',cls:'Normal',
- base:140,shvA:1.5,ltv:7,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
- twin:true,twin2Base:145,twin2ShvA:1.4,twin2Ltv:7,twin2AccR:0.003,
+ base:140,shvA:2.2,ltv:7,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ twin:true,twin2Base:145,twin2ShvA:2.0,twin2Ltv:7,twin2AccR:0.003,
  wehD:[400,700],wehR:[900,1500],urgency:'normal',
  befund:'Zwilling A: Baseline 140 bpm (schwarz). Zwilling B: Baseline 145 bpm (blau). Beide mit normaler Variabilität und Akzelerationen.',
  ursachen:'Konkordante Geminigravidität mit zwei unauffälligen Feten.',
@@ -1014,7 +1014,7 @@ function stepEngine(){
       /* Doubling artefact */
       if(sc.doubling)fhrVal*=2;
 
-      fhrVal=clamp(fhrVal,50,210);
+      fhrVal=clamp(fhrVal,50,300);
     }
 
     /* Signal dropout */
