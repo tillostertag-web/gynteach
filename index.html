@@ -1251,13 +1251,19 @@ function updateReadouts(){
 /* ============================================================
    ANIMATION LOOP
    ============================================================ */
-let lastDraw=0;
+let lastDraw=0,stepAccum=0,lastTs=0;
+const STEP_RATE=20; /* steps per second at 1× — contractions last 20-35s */
 function animLoop(ts){
   if(!running){animId=null;return}
   animId=requestAnimationFrame(animLoop);
-  const stepsNow=STEPS*speed;
-  for(let s=0;s<stepsNow;s++)stepEngine();
-  /* Throttle drawing to ~30fps for performance */
+  if(!lastTs)lastTs=ts;
+  const dt=Math.min(ts-lastTs,100); /* cap delta to avoid burst after tab-switch */
+  lastTs=ts;
+  stepAccum+=dt*0.001*STEP_RATE*speed;
+  const steps=Math.floor(stepAccum);
+  stepAccum-=steps;
+  for(let s=0;s<steps;s++)stepEngine();
+  /* Draw at ~30fps */
   if(ts-lastDraw>30){
     drawFHR();drawTOCO();drawFM();updateReadouts();
     lastDraw=ts;
@@ -1266,6 +1272,7 @@ function animLoop(ts){
 
 function startSim(){
   if(running)return;running=true;
+  lastTs=0;stepAccum=0;
   document.getElementById('btnPlay').textContent='⏸';
   animId=requestAnimationFrame(animLoop);
 }
