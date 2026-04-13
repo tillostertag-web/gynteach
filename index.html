@@ -140,13 +140,21 @@ li{margin-bottom:4px}
 .stv-card h4{margin-top:12px}
 .stv-card ul{font-size:.85rem;color:var(--muted)}
 
+/* PAUSE OVERLAY */
+.ctg-device{position:relative}
+.pause-overlay{display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.55);color:var(--accent);font-family:'Playfair Display',serif;font-size:1.4rem;padding:10px 28px;border-radius:8px;pointer-events:none;z-index:5;letter-spacing:2px}
+.pause-overlay.visible{display:block}
+
 /* RESPONSIVE */
 @media(max-width:768px){
   .ctg-layout{grid-template-columns:1fr}
+  .ctg-main{order:1}
+  .info-panel{order:2}
   .readouts{grid-template-columns:repeat(2,1fr)}
   .stv-thresholds{grid-template-columns:1fr}
   .container{padding:16px 12px}
   .branch{margin-left:12px;padding-left:12px}
+  .stv-card{order:3}
 }
 @media(max-width:480px){
   .nav-btn{padding:12px 10px;font-size:12px}
@@ -442,7 +450,8 @@ li{margin-bottom:4px}
         <button class="btn btn-quiz" id="btnQuiz">🎲 Quiz</button>
         <span class="quiz-score" id="quizScore" style="display:none"></span>
       </div>
-      <div class="ctg-device">
+      <div class="ctg-device" id="ctgDevice">
+        <div class="pause-overlay" id="pauseOverlay">PAUSE</div>
         <div class="ctg-label">FHR (bpm)</div>
         <div class="ctg-canvas-wrap"><canvas id="fhrCanvas" height="240"></canvas></div>
         <div class="ctg-label">TOCO (kPa)</div>
@@ -1092,7 +1101,8 @@ function drawGrid(ctx,w,h,dpr,scaleW,vMin,vMax,majorStep,minorStep){
   }
   /* Scale labels */
   ctx.fillStyle='#666';
-  ctx.font=Math.round(9*dpr)+'px "DM Mono",monospace';
+  const scaleFontPx=window.innerWidth<500?11:9;
+  ctx.font=Math.round(scaleFontPx*dpr)+'px "DM Mono",monospace';
   ctx.textAlign='right';ctx.textBaseline='middle';
   for(let v=vMin;v<=vMax;v+=majorStep){
     const y=Math.round(h*(1-(v-vMin)/range));
@@ -1133,12 +1143,12 @@ function drawDropoutRegions(ctx,buf,w,h,dpr,scaleW,vMin,vMax){
     if(buf[i]==null){
       const x=scaleW+(i/BUF)*plotW;
       const pw=Math.max(1,plotW/BUF);
-      ctx.fillStyle='rgba(245,230,200,0.5)';
+      ctx.fillStyle='rgba(230,210,170,0.45)';
       ctx.fillRect(x,0,pw,h);
     }
   }
   /* Dashed line at 120 bpm in dropout regions */
-  ctx.strokeStyle='rgba(180,160,120,0.5)';
+  ctx.strokeStyle='rgba(160,130,80,0.6)';
   ctx.lineWidth=Math.max(1,Math.round(dpr*0.5));
   ctx.setLineDash([4*dpr,4*dpr]);
   let inDrop=false;
@@ -1180,6 +1190,26 @@ function drawTOCO(){
   ctx.fillStyle='#faf6ee';ctx.fillRect(0,0,w,h);
   drawGrid(ctx,w,h,dpr,scaleW,TOCO_MIN,TOCO_MAX,25,5);
   drawTrace(ctx,tocoBuf,w,h,dpr,scaleW,TOCO_MIN,TOCO_MAX,'#1a3a6a',null);
+  /* Time markers (1min intervals) at bottom */
+  if(frameT>0){
+    const stepsPerMin=STEP_RATE*60;
+    const plotW=w-scaleW;
+    const tfPx=window.innerWidth<500?9:8;
+    ctx.fillStyle='rgba(100,80,60,0.5)';
+    ctx.font=Math.round(tfPx*dpr)+'px "DM Mono",monospace';
+    ctx.textAlign='center';ctx.textBaseline='bottom';
+    for(let m=0;m<=Math.ceil(BUF/stepsPerMin);m++){
+      const stepPos=frameT-(BUF- m*stepsPerMin);
+      if(stepPos<frameT-BUF||stepPos>frameT)continue;
+      const bufIdx=BUF-(frameT-stepPos);
+      if(bufIdx<0||bufIdx>BUF)continue;
+      const x=scaleW+(bufIdx/BUF)*plotW;
+      const mins=Math.floor(stepPos/stepsPerMin);
+      if(mins>=0&&mins%1===0){
+        ctx.fillText(mins+'m',x,h-2*dpr);
+      }
+    }
+  }
 }
 
 function drawFM(){
@@ -1274,11 +1304,13 @@ function startSim(){
   if(running)return;running=true;
   lastTs=0;stepAccum=0;
   document.getElementById('btnPlay').textContent='⏸';
+  document.getElementById('pauseOverlay').classList.remove('visible');
   animId=requestAnimationFrame(animLoop);
 }
 function stopSim(){
   running=false;
   document.getElementById('btnPlay').textContent='▶';
+  document.getElementById('pauseOverlay').classList.add('visible');
   if(animId){cancelAnimationFrame(animId);animId=null}
 }
 
@@ -1490,7 +1522,7 @@ function init(){
   });
 
   document.getElementById('btnSpeed').addEventListener('click',function(){
-    speed=speed===1?2:speed===2?4:1;
+    speed=speed===0.5?1:speed===1?2:speed===2?4:0.5;
     this.textContent=speed+'×';
   });
 
