@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GynTeach — Geburtshilfliche Lehrplattform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1e2530;--border:#30363d;
+  --accent:#c9a96e;--accent2:#7ec8a4;--accent3:#e07b7b;--accent4:#7baee0;
+  --text:#e6edf3;--muted:#8b949e;--yes:#3fb950;--no:#e07b7b;--warn:#d29922;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+h1,h2,h3{font-family:'Playfair Display',serif;font-weight:700}
+h1{font-size:clamp(1.8rem,4vw,2.8rem);color:var(--accent)}
+h2{font-size:clamp(1.4rem,3vw,2rem);color:var(--accent);margin-bottom:12px}
+h3{font-size:1.1rem;margin-bottom:8px}
+h4{font-size:.9rem;font-weight:700;margin-bottom:4px;color:var(--accent)}
+p{margin-bottom:8px}
+code,.mono{font-family:'DM Mono',monospace}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+ul{margin-left:20px;margin-bottom:8px}
+li{margin-bottom:4px}
+
+/* NAV */
+#topnav{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+#topnav::-webkit-scrollbar{height:4px}
+#topnav::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.nav-inner{display:flex;max-width:1200px;margin:0 auto;padding:0 8px}
+.nav-btn{display:inline-block;padding:14px 16px;color:var(--muted);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+.nav-btn:hover{color:var(--text)}
+.nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* LAYOUT */
+.container{max-width:1200px;margin:0 auto;padding:24px 16px}
+.module{display:none}
+.module.active{display:block}
+.subtitle{color:var(--muted);font-size:1.1rem;margin-bottom:16px}
+.source{color:var(--muted);font-size:.8rem;margin-bottom:20px;font-style:italic}
+
+/* OVERVIEW */
+.hero{text-align:center;padding:40px 0 32px}
+.hero .desc{color:var(--muted);max-width:600px;margin:0 auto}
+.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:24px}
+.module-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;cursor:pointer;transition:border-color .2s,transform .2s}
+.module-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-icon{font-size:2rem;margin-bottom:12px}
+.module-card h3{color:var(--text);font-size:1rem}
+.module-card p{color:var(--muted);font-size:.85rem;margin:0}
+
+/* DECISION TREES */
+.tree{margin:16px 0}
+.node{padding:12px 16px;border-radius:8px;margin:6px 0;font-size:.9rem;line-height:1.5}
+.n-start{background:var(--accent);color:var(--bg);font-weight:700}
+.n-question{background:rgba(123,174,224,.15);border:1px solid var(--accent4);color:var(--text)}
+.n-action{background:rgba(63,185,80,.12);border:1px solid var(--yes);color:var(--yes)}
+.n-urgent{background:rgba(224,123,123,.15);border:1px solid var(--no);color:var(--no);font-weight:700}
+.n-warn{background:rgba(210,153,34,.12);border:1px solid var(--warn);color:var(--warn)}
+.n-info{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:.85rem}
+.branch{border-left:3px solid var(--border);margin-left:20px;padding-left:16px;margin-top:2px;margin-bottom:2px}
+.branch-label{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:4px;margin:4px 0 2px;font-family:'DM Mono',monospace}
+.bl-yes{background:var(--yes);color:var(--bg)}
+.bl-no{background:var(--no);color:#fff}
+.bl-maybe{background:var(--warn);color:var(--bg)}
+.bl-info{background:var(--accent4);color:var(--bg)}
+.bl-arrow{background:var(--accent);color:var(--bg)}
+
+/* CTG */
+.ctg-layout{display:grid;grid-template-columns:1fr 320px;gap:16px}
+.ctg-main{min-width:0}
+.ctg-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.ctg-controls select{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:.85rem;font-family:'DM Sans',sans-serif;cursor:pointer;max-width:260px}
+.ctg-controls select:focus{border-color:var(--accent);outline:none}
+.btn{padding:8px 16px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);font-size:.85rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .2s,border-color .2s}
+.btn:hover{border-color:var(--accent);background:var(--surface)}
+.btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.btn-quiz{background:rgba(201,169,110,.15);border-color:var(--accent);color:var(--accent)}
+.btn-quiz:hover{background:var(--accent);color:var(--bg)}
+
+.ctg-device{background:#2a2218;border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.ctg-canvas-wrap{background:#faf6ee;border-radius:6px;overflow:hidden;margin-bottom:4px}
+.ctg-canvas-wrap:last-child{margin-bottom:0}
+.ctg-canvas-wrap canvas{display:block;width:100%}
+.ctg-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:2px 0 0 4px}
+
+.readouts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.readout{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
+.readout-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-family:'DM Mono',monospace}
+.readout-value{font-size:1.3rem;font-weight:700;font-family:'DM Mono',monospace;margin-top:2px}
+.rv-normal{color:var(--yes)}
+.rv-warn{color:var(--warn)}
+.rv-alert{color:var(--no)}
+.rv-info{color:var(--accent4)}
+
+/* INFO PANEL */
+.info-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:.88rem}
+.info-panel h3{color:var(--accent);margin-bottom:12px;font-size:1rem}
+.info-section{margin-bottom:14px;padding:10px;background:var(--surface2);border-radius:8px}
+.info-section h4{font-size:.82rem;margin-bottom:6px}
+.info-section p{margin:0;font-size:.85rem;color:var(--text)}
+.info-normal{border-left:3px solid var(--yes)}
+.info-watch{border-left:3px solid var(--warn)}
+.info-urgent{border-left:3px solid var(--no)}
+
+/* QUIZ */
+.quiz-panel{background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:16px;margin-top:12px;display:none}
+.quiz-panel.active{display:block}
+.quiz-timer{height:6px;background:var(--surface2);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.quiz-timer-bar{height:100%;background:var(--yes);border-radius:3px;transition:width 1s linear,background .5s}
+.quiz-timer-bar.warn{background:var(--warn)}
+.quiz-timer-bar.danger{background:var(--no)}
+.quiz-opts{display:grid;gap:8px;margin:12px 0}
+.quiz-opt{padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:.9rem;text-align:left;transition:border-color .2s}
+.quiz-opt:hover{border-color:var(--accent)}
+.quiz-opt.correct{border-color:var(--yes);background:rgba(63,185,80,.1)}
+.quiz-opt.wrong{border-color:var(--no);background:rgba(224,123,123,.1)}
+.quiz-opt.disabled{pointer-events:none;opacity:.6}
+.quiz-score{font-family:'DM Mono',monospace;color:var(--accent);font-size:.9rem}
+.quiz-result{margin-top:10px;padding:10px;border-radius:8px;font-size:.88rem}
+.quiz-result.pass{background:rgba(63,185,80,.1);border:1px solid var(--yes)}
+.quiz-result.fail{background:rgba(224,123,123,.1);border:1px solid var(--no)}
+.quiz-hidden{font-family:'DM Mono',monospace;color:var(--warn);font-size:1.5rem;letter-spacing:4px}
+
+/* STV CARD */
+.stv-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:16px}
+.stv-card h3{color:var(--accent);margin-bottom:12px}
+.stv-thresholds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.stv-level{padding:12px;border-radius:8px;text-align:center}
+.stv-value{display:block;font-family:'DM Mono',monospace;font-weight:700;font-size:1.1rem;margin-bottom:2px}
+.stv-label{font-size:.8rem}
+.stv-normal{background:rgba(123,174,224,.1);border:1px solid var(--accent4)}.stv-normal .stv-value{color:var(--accent4)}
+.stv-border{background:rgba(210,153,34,.1);border:1px solid var(--warn)}.stv-border .stv-value{color:var(--warn)}
+.stv-path{background:rgba(224,123,123,.1);border:1px solid var(--no)}.stv-path .stv-value{color:var(--no)}
+.stv-card h4{margin-top:12px}
+.stv-card ul{font-size:.85rem;color:var(--muted)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .ctg-layout{grid-template-columns:1fr}
+  .readouts{grid-template-columns:repeat(2,1fr)}
+  .stv-thresholds{grid-template-columns:1fr}
+  .container{padding:16px 12px}
+  .branch{margin-left:12px;padding-left:12px}
+}
+@media(max-width:480px){
+  .nav-btn{padding:12px 10px;font-size:12px}
+  .readout-value{font-size:1.1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<header id="topnav">
+<div class="nav-inner">
+  <button class="nav-btn active" data-mod="uebersicht">Übersicht</button>
+  <button class="nav-btn" data-mod="adnextumor">Adnextumor</button>
+  <button class="nav-btn" data-mod="pmb">PMB</button>
+  <button class="nav-btn" data-mod="screening">Screening</button>
+  <button class="nav-btn" data-mod="schulterdystokie">Schulterdystokie</button>
+  <button class="nav-btn" data-mod="ctg">CTG-Simulator</button>
+</div>
+</header>
+
+<!-- ===== ÜBERSICHT ===== -->
+<section id="sec-uebersicht" class="module active">
+<div class="container">
+  <div class="hero">
+    <h1>GynTeach</h1>
+    <p class="subtitle">Interaktive geburtshilfliche Lehrplattform</p>
+    <p class="desc">Evidenzbasierte Entscheidungsbäume und CTG-Simulation für die klinische Ausbildung in der Geburtshilfe und Gynäkologie.</p>
+  </div>
+  <div class="module-grid">
+    <div class="module-card" data-mod="adnextumor">
+      <div class="card-icon">🔬</div>
+      <h3>Adnextumor</h3>
+      <p>S3-LL Ovar v6.1 (2026), IOTA Simple Rules, ESGO 2025</p>
+    </div>
+    <div class="module-card" data-mod="pmb">
+      <div class="card-icon">🩸</div>
+      <h3>Postmenopausale Blutung</h3>
+      <p>S3-LL Endometrium v3.0 (2024), ESGO 2025</p>
+    </div>
+    <div class="module-card" data-mod="screening">
+      <div class="card-icon">🔍</div>
+      <h3>Zervixkarzinom-Screening</h3>
+      <p>S3-Leitlinie 2020, Ko-Test-Algorithmus</p>
+    </div>
+    <div class="module-card" data-mod="schulterdystokie">
+      <div class="card-icon">🤱</div>
+      <h3>Schulterdystokie</h3>
+      <p>DGGG 2024, RCOG Green-Top 42, HELPERR-Stack</p>
+    </div>
+    <div class="module-card" data-mod="ctg">
+      <div class="card-icon">💓</div>
+      <h3>CTG-Simulator</h3>
+      <p>30 Szenarien, FIGO 2015, Dawes-Redman STV, Quiz-Modus</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== ADNEXTUMOR ===== -->
+<section id="sec-adnextumor" class="module">
+<div class="container">
+  <h2>Adnextumor — Diagnostik &amp; Management</h2>
+  <p class="source">S3-Leitlinie Ovarialtumoren v6.1 (2026) · IOTA Simple Rules · ESGO 2025</p>
+  <div class="tree">
+    <div class="node n-start">Adnextumor diagnostiziert</div>
+    <div class="branch">
+      <div class="node n-question">Akute Symptomatik? (Stieldrehung, Ruptur, Blutung)</div>
+      <div class="branch">
+        <span class="branch-label bl-yes">Ja</span>
+        <div class="node n-urgent">🚨 Notfalllaparoskopie — sofortige operative Intervention</div>
+      </div>
+      <div class="branch">
+        <span class="branch-label bl-no">Nein</span>
+        <div class="node n-question">IOTA Simple Rules — Ultraschallbefund klassifizieren</div>
+        <div class="branch">
+          <span class="branch-label bl-no">M-Features (maligne Merkmale)</span>
+          <div class="node n-warn">⚠ Verdacht auf Malignität</div>
+          <div class="branch">
+            <span class="branch-label bl-arrow">→</span>
+            <div class="node n-action">Tumorboard-Vorstellung + CA-125 / HE4 / ROMA-Index + MRT Becken</div>
+            <div class="node n-info">M-Features: irregulärer solider Tumor, Aszites, ≥4 papilläre Strukturen, unregelmäßiger multilokulärer solider Tumor &gt;10 cm, starke Vaskularisation</div>
+          </div>
+        </div>
+        <div class="branch">
+          <span class="branch-label bl-yes">B-Features (benigne Merkmale)</span>
+          <div class="node n-action">Kontrollintervall nach Größe</div>
+          <div class="branch">
+            <span class="branch-label bl-info">≤5 cm</span>
+            <div class="node n-action">Sonographische Kontrolle 1×/Jahr</div>
+          </div>
+          <div class="branch">
+            <span class="branch-label bl-info">≤10 cm</span>
+            <div class="node n-action">Kontrolle in 3 Monaten, dann individuell</div>
+          </div>
+          <div class="branch">
+            <span class="branch-label bl-info">V.a. Corpus luteum</span>
+            <div class="node n-action">Kontrolle in 6–8 Wochen (Zyklusabhängigkeit prüfen)</div>
+          </div>
+          <div class="node n-info">B-Features: unilokulär, solider Anteil &lt;7 mm, akustischer Schatten, glatt multilokulärer Tumor &lt;10 cm, kein Blutfluss (Doppler Colour Score 1)</div>
+        </div>
+        <div class="branch">
+          <span class="branch-label bl-maybe">Inkonklusiv</span>
+          <div class="node n-warn">Keine eindeutige Zuordnung durch Simple Rules</div>
+          <div class="branch">
+            <span class="branch-label bl-arrow">→</span>
+            <div class="node n-action">MRT Becken + Expertensonographie (IOTA-zertifiziertes Zentrum)</div>
+          </div>
+          <div class="branch">
+            <span class="branch-label bl-info">Postmenopause</span>
+            <div class="node n-warn">⚠ Sonderregel: Bei postmenopausalen Patientinnen mit inkonklusivem Befund — niedrigere Schwelle für operative Abklärung. CA-125/HE4 ergänzen. Tumorboard empfohlen.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== PMB ===== -->
+<section id="sec-pmb" class="module">
+<div class="container">
+  <h2>Postmenopausale Blutung (PMB)</h2>
+  <p class="source">S3-Leitlinie Endometriumkarzinom v3.0 (2024) · ESGO 2025</p>
+  <div class="tree">
+    <div class="node n-start">Postmenopausale Blutung</div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">Erstdiagnostik</span>
+      <div class="node n-question">Transvaginale Sonographie (TVS) — Endometriumdicke (ED) bestimmen</div>
+      <div class="branch">
+        <span class="branch-label bl-yes">ED ≤4 mm, homogen</span>
+        <div class="node n-action">✅ Endometriumkarzinom-Risiko &lt;1 % — Kontrolle</div>
+        <div class="node n-info">Bei erneuter Blutung: erneute TVS oder direkte Hysteroskopie. Unter Tamoxifen: Schwelle nicht anwendbar, immer Histologie.</div>
+      </div>
+      <div class="branch">
+        <span class="branch-label bl-no">ED &gt;4 mm oder inhomogen</span>
+        <div class="node n-warn">⚠ Histologische Abklärung erforderlich</div>
+        <div class="branch">
+          <span class="branch-label bl-arrow">→</span>
+          <div class="node n-action">Hysteroskopie + fraktionierte Abrasio</div>
+          <div class="branch">
+            <span class="branch-label bl-arrow">Histologie</span>
+            <div class="node n-question">Histologisches Ergebnis?</div>
+            <div class="branch">
+              <span class="branch-label bl-no">Karzinom</span>
+              <div class="node n-urgent">🚨 Endometriumkarzinom bestätigt</div>
+              <div class="branch">
+                <span class="branch-label bl-arrow">Staging-Workup</span>
+                <div class="node n-action">MRT Becken (Myometriuminfiltration) + CT Thorax/Abdomen</div>
+                <div class="node n-action">Molekulare Klassifikation (TCGA: POLE, MSI, p53, NSMP)</div>
+                <div class="node n-action">Tumorboard-Vorstellung</div>
+                <div class="node n-urgent">Staging-OP: Hysterektomie + BSO ± Lymphonodektomie ± Omentektomie</div>
+              </div>
+            </div>
+            <div class="branch">
+              <span class="branch-label bl-yes">Benigne</span>
+              <div class="node n-action">✅ Benigner Befund</div>
+              <div class="branch">
+                <span class="branch-label bl-info">Polyp</span>
+                <div class="node n-info">Hysteroskopische Polypektomie, jährliche Kontrolle</div>
+              </div>
+              <div class="branch">
+                <span class="branch-label bl-info">Hyperplasie</span>
+                <div class="node n-info">Ohne Atypie: Gestagen-Therapie + Kontrolle in 6 Mo. Mit Atypie: Hysterektomie empfohlen (Karzinomrisiko ~30%)</div>
+              </div>
+              <div class="branch">
+                <span class="branch-label bl-info">Atrophie</span>
+                <div class="node n-info">Häufigste Ursache einer PMB. Ggf. lokale Östrogentherapie.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== SCREENING ===== -->
+<section id="sec-screening" class="module">
+<div class="container">
+  <h2>Zervixkarzinom-Screening</h2>
+  <p class="source">S3-Leitlinie Prävention des Zervixkarzinoms (2020) · Ko-Test-Algorithmus</p>
+  <div class="tree">
+    <div class="node n-start">Zervixkarzinom-Screening (Frauen ≥35 J.) — Ko-Test: HPV + Zytologie</div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">Ergebnis</span>
+      <div class="node n-question">Ko-Test-Befund?</div>
+      <div class="branch">
+        <span class="branch-label bl-yes">HPV negativ / Pap I–II</span>
+        <div class="node n-action">✅ Unauffällig — Wiederholung in 3 Jahren</div>
+        <div class="node n-info">Normalbefund. Reguläres Screening-Intervall beibehalten.</div>
+      </div>
+      <div class="branch">
+        <span class="branch-label bl-no">HPV 16/18 positiv ODER Pap IV/V</span>
+        <div class="node n-urgent">🚨 Hochrisiko — sofortige Abklärung</div>
+        <div class="branch">
+          <span class="branch-label bl-arrow">→</span>
+          <div class="node n-action">Direkte Kolposkopie + gezielte Biopsie</div>
+          <div class="branch">
+            <span class="branch-label bl-arrow">Histologie</span>
+            <div class="node n-question">CIN-Grad?</div>
+            <div class="branch">
+              <span class="branch-label bl-info">CIN 1</span>
+              <div class="node n-action">Kontrolle in 12 Monaten (hohe Spontanregressionsrate)</div>
+            </div>
+            <div class="branch">
+              <span class="branch-label bl-info">CIN 2</span>
+              <div class="node n-warn">Individuelles Vorgehen: Kontrolle vs. Therapie (Alter, Kinderwunsch, Immunstatus berücksichtigen)</div>
+            </div>
+            <div class="branch">
+              <span class="branch-label bl-info">CIN 3 / AIS</span>
+              <div class="node n-urgent">🚨 LLETZ (Large Loop Excision of the Transformation Zone) — therapeutische Konisation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="branch">
+        <span class="branch-label bl-maybe">HPV+ (nicht 16/18) + Pap III</span>
+        <div class="node n-warn">⚠ Grenzwertiger Befund — kurzfristige Kontrolle</div>
+        <div class="branch">
+          <span class="branch-label bl-arrow">→</span>
+          <div class="node n-action">Wiederholung Ko-Test in 12 Monaten</div>
+          <div class="node n-info">Bei Persistenz (&gt;12 Mo): Kolposkopie empfohlen. Bei Regression (HPV-Clearance): zurück ins reguläre Screening.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== SCHULTERDYSTOKIE ===== -->
+<section id="sec-schulterdystokie" class="module">
+<div class="container">
+  <h2>Schulterdystokie — HELPERR-Algorithmus</h2>
+  <p class="source">DGGG-Leitlinie (2024) · RCOG Green-Top Guideline 42</p>
+  <div class="node n-info" style="margin-bottom:16px">Lineare Eskalation — jeder Schritt wird nur bei Versagen des vorherigen durchgeführt. Gesamtzeit-Budget: max. 4–5 Minuten bis zur Geburt.</div>
+  <div class="tree">
+    <div class="node n-urgent">🚨 Schulterdystokie erkannt — Turtle Sign: Kopf retrahiert gegen Perineum</div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">H — Help</span>
+      <div class="node n-action">Hilfe rufen: Oberarzt/Oberärztin, Anästhesie, Neonatologie, Hebamme. Uhr starten!</div>
+    </div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">E — Episiotomie</span>
+      <div class="node n-action">Großzügige Episiotomie — schafft Platz für Manöver (löst nicht die knöcherne Obstruktion, aber erleichtert Zugang)</div>
+    </div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">L — Legs (McRoberts) + Mazzanti</span>
+      <div class="node n-action">McRoberts-Manöver: Maximale Hyperflexion beider Beine der Mutter an den Bauch → streckt das Becken, dreht Symphyse nach kranial. Mazzanti-Druck gleichzeitig. Erfolgsrate: ~40–50%</div>
+    </div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">P — Pressure (suprasymphysär)</span>
+      <div class="node n-action">Suprasymphysärer Druck: Von DORSAL auf die vordere Schulter des Kindes — drückt Schulter unter Symphyse. ⚠ KEIN Kristeller-Handgriff (Fundusdruck verschlechtert die Situation!)</div>
+    </div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">E — Enter (innere Manöver)</span>
+      <div class="node n-warn">Innere Rotationsmanöver — Hand vaginal einführen</div>
+      <div class="branch">
+        <span class="branch-label bl-info">Rubin II</span>
+        <div class="node n-info">Druck auf dorsale Seite der vorderen Schulter → Rotation in kleineren Durchmesser</div>
+      </div>
+      <div class="branch">
+        <span class="branch-label bl-info">Woods-Schraubenmanöver</span>
+        <div class="node n-info">180°-Rotation des Kindes durch Druck auf ventrale Seite der hinteren Schulter</div>
+      </div>
+      <div class="branch">
+        <span class="branch-label bl-info">Jacquemier</span>
+        <div class="node n-info">Lösung des hinteren Arms: Hand entlang des hinteren Arms einführen, Unterarm fassen und über Brust entwickeln</div>
+      </div>
+    </div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">R — Roll (Gaskin)</span>
+      <div class="node n-action">Gaskin-Manöver: Mutter in Vierfüßlerstand drehen → verändert Beckendurchmesser. Schwerkraft unterstützt die Lösung.</div>
+    </div>
+    <div class="branch">
+      <span class="branch-label bl-arrow">R — Remove (Ultima Ratio)</span>
+      <div class="node n-urgent">🚨 Zavanelli-Manöver: Kopf zurückschieben + Notsectio ODER Symphysiotomie. Nur bei Versagen aller anderen Maßnahmen!</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== CTG SIMULATOR ===== -->
+<section id="sec-ctg" class="module">
+<div class="container">
+  <div class="ctg-layout">
+    <div class="ctg-main">
+      <div class="ctg-controls">
+        <select id="scenarioSelect"></select>
+        <button class="btn" id="btnPlay" title="Start/Pause">▶</button>
+        <button class="btn" id="btnSpeed" title="Geschwindigkeit">1×</button>
+        <button class="btn btn-quiz" id="btnQuiz">🎲 Quiz</button>
+        <span class="quiz-score" id="quizScore" style="display:none"></span>
+      </div>
+      <div class="ctg-device">
+        <div class="ctg-label">FHR (bpm)</div>
+        <div class="ctg-canvas-wrap"><canvas id="fhrCanvas" height="240"></canvas></div>
+        <div class="ctg-label">TOCO (kPa)</div>
+        <div class="ctg-canvas-wrap"><canvas id="tocoCanvas" height="120"></canvas></div>
+        <div class="ctg-label">FM</div>
+        <div class="ctg-canvas-wrap" style="background:#f5f0e4"><canvas id="fmCanvas" height="50"></canvas></div>
+      </div>
+      <div class="readouts">
+        <div class="readout"><div class="readout-label">FHR</div><div class="readout-value rv-normal" id="roFHR">---</div></div>
+        <div class="readout"><div class="readout-label">TOCO</div><div class="readout-value rv-info" id="roTOCO">---</div></div>
+        <div class="readout"><div class="readout-label">FM / 10min</div><div class="readout-value rv-info" id="roFM">---</div></div>
+        <div class="readout"><div class="readout-label">MHR</div><div class="readout-value rv-info" id="roMHR">---</div></div>
+        <div class="readout"><div class="readout-label">STV</div><div class="readout-value rv-normal" id="roSTV">---</div></div>
+        <div class="readout"><div class="readout-label">FIGO 2015</div><div class="readout-value rv-normal" id="roFIGO">---</div></div>
+      </div>
+      <div class="quiz-panel" id="quizPanel">
+        <div class="quiz-timer"><div class="quiz-timer-bar" id="quizTimerBar"></div></div>
+        <div id="quizContent"></div>
+      </div>
+      <div class="stv-card">
+        <h3>STV — Kurzzeit-Variabilität (Dawes-Redman)</h3>
+        <p>Die STV misst die Variation aufeinanderfolgender RR-Intervalle und reflektiert die autonome Modulation der fetalen Herzfrequenz.</p>
+        <div class="stv-thresholds">
+          <div class="stv-level stv-normal"><span class="stv-value">&gt;4.5 ms</span><span class="stv-label">Normal</span></div>
+          <div class="stv-level stv-border"><span class="stv-value">3.0–4.5 ms</span><span class="stv-label">Grenzwertig</span></div>
+          <div class="stv-level stv-path"><span class="stv-value">&lt;3.0 ms</span><span class="stv-label">Pathologisch</span></div>
+        </div>
+        <h4>Berechnung</h4>
+        <p class="mono" style="font-size:.82rem">RR[i] = 60000 / FHR[i] → STV = mean(|RR[i] − RR[i−1]|)</p>
+        <h4>pH-Korrelation</h4>
+        <p>STV &lt;3.0 ms korreliert mit fetalem pH &lt;7.20 (Sensitivität ~80 %, Spezifität ~60 %). Bei STV &lt;2.5 ms: NPV für Azidose &gt;90 %.</p>
+        <h4>Cave</h4>
+        <ul>
+          <li>Schlafzyklen (20–40 Min) können STV physiologisch auf 3–4 ms reduzieren</li>
+          <li>Frühgeburtlichkeit (&lt;32 SSW): niedrigere STV-Normwerte (Schwelle ~3.0 ms statt 4.5 ms)</li>
+          <li>Medikamente (Opioide, MgSO₄, Betamethason) können STV supprimieren</li>
+          <li>STV allein ist kein Entscheidungskriterium — immer im Gesamtkontext des CTG bewerten</li>
+        </ul>
+      </div>
+    </div>
+    <div class="info-panel" id="infoPanel">
+      <h3>Szenario auswählen</h3>
+      <p style="color:var(--muted)">Wähle ein Szenario aus dem Dropdown oder starte den Quiz-Modus.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<script>
+'use strict';
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function randn(){let u,v,s;do{u=Math.random()*2-1;v=Math.random()*2-1;s=u*u+v*v}while(s>=1||s===0);return u*Math.sqrt(-2*Math.log(s)/s)}
+function clamp(v,lo,hi){return v<lo?lo:v>hi?hi:v}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* ============================================================
+   CTG ENGINE CLASSES
+   ============================================================ */
+
+/* Ornstein-Uhlenbeck for basal drift */
+class OU{
+  constructor(mu,theta,sigma){this.mu=mu;this.theta=theta;this.sigma=sigma;this.x=mu}
+  next(){this.x+=this.theta*(this.mu-this.x)+this.sigma*randn();return this.x}
+  reset(mu){this.mu=mu;this.x=mu}
+}
+
+/* AR(2) for short-term variability texture */
+class AR2{
+  constructor(sigma){this.a1=0.8;this.a2=-0.1;this.sigma=sigma;this.x1=0;this.x2=0}
+  next(){const x=this.a1*this.x1+this.a2*this.x2+this.sigma*randn();this.x2=this.x1;this.x1=x;return x}
+}
+
+/* Long-term variability: 3 overlaid sines with frequency drift */
+class LTV{
+  constructor(amp){
+    this.amps=[amp*0.5,amp*0.3,amp*0.2];
+    this.phases=[Math.random()*6.28,Math.random()*6.28,Math.random()*6.28];
+    this.freqs=[0.018,0.032,0.052];
+    this.drifts=[0.0001,0.00015,0.0002];
+  }
+  next(){
+    let s=0;
+    for(let i=0;i<3;i++){
+      this.phases[i]+=this.freqs[i];
+      this.freqs[i]+=(Math.random()-0.5)*this.drifts[i];
+      this.freqs[i]=clamp(this.freqs[i],0.005,0.08);
+      s+=this.amps[i]*Math.sin(this.phases[i]);
+    }
+    return s;
+  }
+}
+
+/* Acceleration generator: asymmetric bell curves */
+class AccGen{
+  constructor(rate){this.rate=rate;this.active=false;this.t=0;this.dur=0;this.peak=0}
+  next(){
+    if(this.active){
+      this.t++;
+      const p=this.t/this.dur;
+      if(p>=1){this.active=false;return 0}
+      if(p<0.3){const q=p/0.3;return this.peak*q*q*(3-2*q)}
+      else{const q=(p-0.3)/0.7;return this.peak*(1-q*q*(3-2*q))}
+    }
+    if(Math.random()<this.rate){
+      this.active=true;this.t=0;
+      this.dur=80+Math.random()*130;
+      this.peak=15+Math.random()*20;
+    }
+    return 0;
+  }
+}
+
+/* Smoothstep wehen shape */
+function wehenShape(x){
+  if(x<0.35){const p=x/0.35;return p*p*(3-2*p)}
+  if(x<0.65)return 1;
+  const p=(x-0.65)/0.35;return(1-p)*(1-p)*(1+2*p);
+}
+
+/* Wehen (contractions) */
+class Wehen{
+  constructor(durRange,restRange){
+    this.durLo=durRange[0];this.durHi=durRange[1];
+    this.restLo=restRange[0];this.restHi=restRange[1];
+    this.newCycle();this.t=0;
+  }
+  newCycle(){
+    this.dur=this.durLo+Math.random()*(this.durHi-this.durLo);
+    this.rest=this.restLo+Math.random()*(this.restHi-this.restLo);
+    this.total=this.dur+this.rest;
+  }
+  next(){
+    this.t++;
+    if(this.t>this.total){this.t=1;this.newCycle()}
+    if(this.t<=this.dur){
+      this.active=true;this.prog=this.t/this.dur;
+      return wehenShape(this.prog);
+    }
+    this.active=false;this.prog=0;return 0;
+  }
+}
+
+/* Late deceleration: triggered at weh peak, delayed */
+class LateDecel{
+  constructor(){this.reset()}
+  reset(){this.armed=false;this.firing=false;this.t=0;this.dur=0;this.depth=0;this.lag=0;this.lagT=0}
+  update(prog,active){
+    if(active&&prog>=0.45&&prog<=0.55&&!this.armed&&!this.firing){
+      this.armed=true;this.lagT=0;
+      this.lag=22+Math.floor(Math.random()*14);
+      this.depth=22+Math.random()*18;
+      this.dur=120+Math.random()*80;
+    }
+    if(!active)this.armed=false;
+  }
+  next(){
+    if(this.armed){
+      this.lagT++;
+      if(this.lagT>=this.lag){this.armed=false;this.firing=true;this.t=0}
+    }
+    if(this.firing){
+      this.t++;
+      const p=this.t/this.dur;
+      if(p>=1){this.firing=false;return 0}
+      /* 30% descent, 70% recovery */
+      if(p<0.3){const q=p/0.3;return-this.depth*q*q*(3-2*q)}
+      else{const q=(p-0.3)/0.7;return-this.depth*(1-q*q*(3-2*q))}
+    }
+    return 0;
+  }
+}
+
+/* Variable deceleration: V-shape with optional shoulders (W-pattern) */
+class VarDecel{
+  constructor(){this.active=false;this.t=0;this.dur=0;this.depth=0;this.shoulders=false;this.shoulderA=0}
+  tryTrigger(wehActive){
+    if(wehActive&&!this.active&&Math.random()<0.014){
+      this.active=true;this.t=0;
+      this.dur=60+Math.random()*140;
+      this.depth=30+Math.random()*50;
+      this.shoulders=Math.random()>0.4;
+      this.shoulderA=this.shoulders?(8+Math.random()*10):0;
+    }
+  }
+  next(){
+    if(!this.active)return 0;
+    this.t++;const p=this.t/this.dur;
+    if(p>=1){this.active=false;return 0}
+    const sw=0.12;
+    if(this.shoulders&&p<sw)return this.shoulderA*Math.sin(p/sw*Math.PI);
+    if(this.shoulders&&p>1-sw)return this.shoulderA*Math.sin((1-p)/sw*Math.PI);
+    const iS=this.shoulders?sw:0,iE=this.shoulders?1-sw:1;
+    const q=(p-iS)/(iE-iS);
+    if(q<0.4){const r=q/0.4;return-this.depth*r*r}
+    else{const r=(q-0.4)/0.6;return-this.depth*(1-r)*(1-r)}
+  }
+}
+
+/* MHR generator: OU + respiratory sinus arrhythmia */
+class MHRGen{
+  constructor(base){this.ou=new OU(base,0.005,0.3);this.ph=0;this.rFreq=0.12;this.rAmp=3}
+  next(){this.ph+=this.rFreq;return this.ou.next()+this.rAmp*Math.sin(this.ph)}
+}
+
+/* Signal dropout */
+class SignalDropout{
+  constructor(profile){
+    const probs={none:0,rare:0.002,moderate:0.008,severe:0.02,adipos:0.015};
+    this.prob=probs[profile]||0;this.inDrop=false;this.len=0;this.t=0;
+  }
+  next(){
+    if(this.inDrop){this.t++;if(this.t>=this.len){this.inDrop=false;return true}return false}
+    if(Math.random()<this.prob){this.inDrop=true;this.len=8+Math.floor(Math.random()*35);this.t=0;return false}
+    return true;
+  }
+}
+
+/* ============================================================
+   SCENARIOS (30)
+   ============================================================ */
+const SCENARIOS=[
+/* === PHYSIOLOGISCH === */
+{id:'normal',lab:'Physiologisch – Normal',cat:'🟢 Physiologisch',cls:'Normal',
+ base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'normal',
+ befund:'Baseline 140 bpm, Variabilität 5–15 bpm (STV >4.5 ms). Sporadische Akzelerationen >15 bpm/>15 s. Keine Dezelerationen.',
+ ursachen:'Normales fetales Wohlbefinden, wacher/aktiver Fetus.',
+ konsequenz:'Routineüberwachung fortsetzen.'},
+
+{id:'normal_aktiv',lab:'Physiologisch – Aktives Kind',cat:'🟢 Physiologisch',cls:'Normal',
+ base:145,shvA:2.0,ltv:10,accR:0.005,decT:'none',fmR:0.004,mhrBase:78,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'normal',
+ befund:'Baseline 145 bpm, gute Variabilität, häufige Akzelerationen und Kindsbewegungen.',
+ ursachen:'Aktiver Fetus, lebhafte Kinematik.',
+ konsequenz:'Unauffälliges CTG. Normale Überwachung.'},
+
+{id:'schlaef',lab:'Physiologisch – Schlafphase',cat:'🟢 Physiologisch',cls:'Normal',
+ base:135,shvA:0.8,ltv:3,accR:0.0003,decT:'none',fmR:0.0003,mhrBase:76,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'normal',
+ befund:'Baseline 135 bpm, reduzierte Variabilität (STV 3–4 ms), kaum Akzelerationen. Kein pathologisches Muster.',
+ ursachen:'Fetale Schlafphase (20–40 Min Zyklen). Physiologisch.',
+ konsequenz:'Abwarten (max. 40 Min), dann Weckversuch. Bei Persistenz >60 Min: Reevaluation.'},
+
+{id:'fruehgeburt',lab:'Physiologisch – Frühgeburt',cat:'🟢 Physiologisch',cls:'Normal',
+ base:155,shvA:0.9,ltv:5,accR:0.002,decT:'none',fmR:0.001,mhrBase:82,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'normal',
+ befund:'Baseline 155 bpm (altersgemäß erhöht), mäßige Variabilität, vereinzelte Akzelerationen.',
+ ursachen:'Unreife des autonomen Nervensystems bei Frühgeburtlichkeit (<32 SSW). Höhere Baseline und niedrigere STV physiologisch.',
+ konsequenz:'Altersentsprechend normal. Angepasste STV-Schwellenwerte beachten (<32 SSW: STV ≥3.0 ms ausreichend).'},
+
+/* === PATHOLOGISCH === */
+{id:'tachy',lab:'Tachykardie',cat:'🔴 Pathologisch',cls:'Suspekt',
+ base:175,shvA:1.2,ltv:6,accR:0.001,decT:'none',fmR:0.001,mhrBase:85,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'watch',
+ befund:'Baseline 175 bpm (Tachykardie >160 bpm), erhaltene Variabilität, vereinzelt Akzelerationen.',
+ ursachen:'Maternales Fieber/Chorioamnionitis, fetale Anämie, Medikamente (Tokolytika), fetale Hypoxie (kompensiert).',
+ konsequenz:'Ursachensuche: Temperatur, Labor (CRP, Blutbild). Bei V.a. Chorioamnionitis: Antibiotika + Entbindung erwägen.'},
+
+{id:'tachy_sinus',lab:'Sinusoidale Tachykardie',cat:'🔴 Pathologisch',cls:'Pathologisch',
+ base:170,shvA:0.2,ltv:0,accR:0,decT:'none',fmR:0,mhrBase:88,mhrMode:'normal',dropout:'none',
+ sinus:true,sinusAmp:12,sinusFreq:0.15,
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Baseline 170 bpm, sinusoidales Muster (regelmäßige Oszillation 3–5/min, Amplitude 10–15 bpm), keine SHV, keine Akzelerationen.',
+ ursachen:'Schwere fetale Anämie (Rh-Inkompatibilität, Fetomaternale Transfusion), terminale Hypoxie.',
+ konsequenz:'NOTFALL. Sofortige Evaluation: Doppler MCA, Kleihauer-Betke. Bei V.a. Anämie: intrauterine Transfusion oder Notsectio.'},
+
+{id:'shvloss',lab:'SHV-Verlust (Silent Pattern)',cat:'🔴 Pathologisch',cls:'Pathologisch',
+ base:140,shvA:0.12,ltv:1,accR:0,decT:'none',fmR:0.0005,mhrBase:80,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Baseline 140 bpm, Variabilität <5 bpm (STV <2.5 ms), keine Akzelerationen. Silent Pattern.',
+ ursachen:'Fetale Hypoxie/Azidose, ZNS-Depression (Medikamente), fetaler Schlaf (DD, aber >40 Min pathologisch).',
+ konsequenz:'MBU (Fetalblutanalyse) wenn möglich. Bei pH <7.20 oder Laktat >4.8: sofortige Entbindung.'},
+
+{id:'early',lab:'Frühe Dezelerationen',cat:'🔴 Pathologisch',cls:'Suspekt',
+ base:140,shvA:1.3,ltv:6,accR:0.001,decT:'early',earlyDepth:20,fmR:0.001,mhrBase:80,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'watch',
+ befund:'Baseline 140 bpm, erhaltene Variabilität. Frühe Dezelerationen: Nadir zeitgleich mit Wehengipfel, Amplitude 10–20 bpm.',
+ ursachen:'Kopfkompression unter Wehen (vagaler Reflex). Häufig in der späten EP/AP.',
+ konsequenz:'In der Regel benigne. Überwachung fortsetzen. Bei zusätzlichem SHV-Verlust: Reevaluation.'},
+
+{id:'late',lab:'Späte Dezelerationen',cat:'🔴 Pathologisch',cls:'Pathologisch',
+ base:140,shvA:1.2,ltv:6,accR:0,decT:'late',fmR:0.0005,mhrBase:80,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Baseline 140 bpm, Variabilität erhalten. Späte Dezelerationen: Nadir 20–40 s nach Wehengipfel, Tiefe 20–40 bpm.',
+ ursachen:'Uteroplazentare Insuffizienz, maternale Hypotension, Überstimulation.',
+ konsequenz:'Linksseitenlage, Tokolyse erwägen, Volumen. Bei Persistenz: MBU oder sofortige Entbindung.'},
+
+{id:'late_shv',lab:'Späte Dezel. + SHV-Verlust',cat:'🔴 Pathologisch',cls:'Pathologisch',
+ base:140,shvA:0.2,ltv:1,accR:0,decT:'late',fmR:0,mhrBase:80,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Baseline 140 bpm, Variabilität <5 bpm (STV <2.5 ms). Repetitive späte Dezelerationen. Keine Akzelerationen.',
+ ursachen:'Fortgeschrittene fetale Hypoxie mit Dekompensation.',
+ konsequenz:'NOTFALL. Sofortige Entbindung (Sectio/VE). Keine Zeitverzögerung durch MBU.'},
+
+{id:'variable',lab:'Variable Dezelerationen',cat:'🔴 Pathologisch',cls:'Suspekt',
+ base:140,shvA:1.5,ltv:7,accR:0.002,decT:'variable',fmR:0.001,mhrBase:80,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'watch',
+ befund:'Baseline 140 bpm, gute Variabilität. Variable Dezelerationen: V-Form, variabel in Timing und Tiefe, teilweise mit Schultern (W-Muster).',
+ ursachen:'Nabelschnurkompression (Oligohydramnion, Nabelschnurumschlingung).',
+ konsequenz:'Amnioninfusion erwägen. Lagewechsel. Bei atypischen Variablen (kein Überschießen, langsame Erholung): Eskalation.'},
+
+{id:'variable_shv',lab:'Variable Dezel. + SHV-Verlust',cat:'🔴 Pathologisch',cls:'Pathologisch',
+ base:140,shvA:0.2,ltv:1.5,accR:0,decT:'variable',fmR:0,mhrBase:80,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Baseline 140 bpm, Variabilität <5 bpm. Repetitive variable Dezelerationen ohne Schultern, langsame Erholung.',
+ ursachen:'Nabelschnurkompression + fortgeschrittene fetale Hypoxie.',
+ konsequenz:'NOTFALL. Sofortige Entbindung. Atypische variable Dezelerationen + fehlende Variabilität = hohes Azidoserisiko.'},
+
+{id:'sinus',lab:'Sinusoidales Muster',cat:'🔴 Pathologisch',cls:'Pathologisch',
+ base:140,shvA:0.15,ltv:0,accR:0,decT:'none',fmR:0,mhrBase:80,mhrMode:'normal',dropout:'none',
+ sinus:true,sinusAmp:10,sinusFreq:0.13,
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Baseline 140 bpm, sinusoidales Muster (3–5 Zyklen/min, Amplitude 5–15 bpm), fehlende SHV, keine Akzelerationen.',
+ ursachen:'Schwere fetale Anämie, terminale Hypoxie, Medikamente (seltener: Butorphanol).',
+ konsequenz:'NOTFALL. Sofortige Evaluation: Doppler MCA (PSV), Kleihauer-Betke. Notsectio bei V.a. schwere Anämie.'},
+
+{id:'brady',lab:'Bradykardie',cat:'🔴 Pathologisch',cls:'Pathologisch',
+ base:100,shvA:0.8,ltv:3,accR:0,decT:'none',fmR:0.0005,mhrBase:80,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Baseline 100 bpm (Bradykardie <110 bpm), reduzierte Variabilität, keine Akzelerationen.',
+ ursachen:'Fetale Hypoxie, kongenitaler Herzblock (Lupus-AK), Hypothermie, Medikamente (Betablocker).',
+ konsequenz:'Ursachensuche. Bei persistierender Bradykardie >100 bpm mit erhaltener Variabilität: ggf. beobachten. Bei <100 bpm: Entbindung.'},
+
+{id:'brady_akut',lab:'Akute Bradykardie',cat:'🔴 Pathologisch',cls:'Pathologisch',
+ base:70,shvA:0.3,ltv:1,accR:0,decT:'none',fmR:0,mhrBase:90,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'FHR 60–80 bpm, minimale Variabilität. Prolongierte schwere Bradykardie.',
+ ursachen:'Nabelschnurvorfall, Plazentalösung, Uterusruptur, maternaler Kreislaufkollaps.',
+ konsequenz:'NOTFALL. Sofortige Notsectio (EE-Zeit <10 Min). Gleichzeitig: Linksseitenlage, Volumen, Tokolyse, vaginale Untersuchung (Nabelschnur?).'},
+
+/* === GEBURT === */
+{id:'ep_normal',lab:'EP – Normales CTG',cat:'🤱 Geburt',cls:'Normal',
+ base:140,shvA:1.5,ltv:7,accR:0.003,decT:'none',fmR:0.002,mhrBase:85,mhrMode:'normal',dropout:'none',
+ wehD:[350,550],wehR:[600,1000],urgency:'normal',
+ befund:'Baseline 140 bpm, gute Variabilität, Akzelerationen vorhanden. Regelmäßige Wehentätigkeit (EP).',
+ ursachen:'Normale Eröffnungsperiode.',
+ konsequenz:'Überwachung fortsetzen. Routinemäßige Betreuung.'},
+
+{id:'ap_pressen',lab:'AP – Presswehen',cat:'🤱 Geburt',cls:'Suspekt',
+ base:145,shvA:1.2,ltv:5,accR:0.001,decT:'variable',fmR:0.001,mhrBase:95,mhrMode:'normal',dropout:'none',
+ wehD:[250,400],wehR:[150,350],urgency:'watch',
+ befund:'Baseline 145 bpm, variable Dezelerationen mit Wehen synchron (Presswehen). Rasche Erholung.',
+ ursachen:'Kopfkompression + Nabelschnurkompression unter Pressen. Physiologisch in der AP.',
+ konsequenz:'Erwartungsgemäß. Bei rascher Erholung und erhaltener Baseline/Variabilität: fortsetzen.'},
+
+{id:'pressen_gut',lab:'Pressen – Gute Erholung',cat:'🤱 Geburt',cls:'Normal',
+ base:140,shvA:1.4,ltv:6,accR:0.002,decT:'variable',fmR:0.001,mhrBase:92,mhrMode:'normal',dropout:'none',
+ wehD:[250,400],wehR:[200,400],urgency:'normal',
+ befund:'Variable Dezelerationen unter Presswehen mit prompter Erholung zur Baseline. Gute Variabilität zwischen den Wehen.',
+ ursachen:'Normale Geburtsphysiologie in der Austreibungsperiode.',
+ konsequenz:'Fortsetzen. Gute Prognose bei schneller Erholung und erhaltener Variabilität.'},
+
+{id:'pressen_path',lab:'Pressen – Pathologisch',cat:'🤱 Geburt',cls:'Pathologisch',
+ base:150,shvA:0.3,ltv:2,accR:0,decT:'late',fmR:0,mhrBase:100,mhrMode:'normal',dropout:'none',
+ wehD:[250,400],wehR:[150,300],urgency:'urgent',
+ befund:'Tachykardie 150 bpm, späte Dezelerationen, fehlende Variabilität, keine Erholung zur Baseline.',
+ ursachen:'Fetale Erschöpfung, prolongierte AP, uteroplazentare Insuffizienz.',
+ konsequenz:'VE/Forceps oder Sectio. Keine weitere Verzögerung. Neonatologie informieren.'},
+
+/* === NOTFÄLLE === */
+{id:'cord_prolaps',lab:'Nabelschnurvorfall',cat:'⚡ Notfälle',cls:'Pathologisch',
+ base:65,shvA:0.3,ltv:1,accR:0,decT:'none',fmR:0,mhrBase:100,mhrMode:'normal',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Akute schwere Bradykardie 60–70 bpm. Minimale Variabilität.',
+ ursachen:'Nabelschnurvorfall mit Kompression → akute fetale Hypoxie.',
+ konsequenz:'NOTFALL. Hochschieben des vorangehenden Teils (Beckenhochlagerung), Blase füllen, Notsectio. EE-Zeit <10 Min.'},
+
+{id:'abruption',lab:'Vorzeitige Plazentalösung',cat:'⚡ Notfälle',cls:'Pathologisch',
+ base:170,shvA:0.4,ltv:2,accR:0,decT:'late',fmR:0,mhrBase:110,mhrMode:'normal',dropout:'none',
+ wehD:[600,900],wehR:[50,200],urgency:'urgent',
+ befund:'Tachykardie 170 bpm, repetitive späte Dezelerationen, reduzierte Variabilität. Uterus-Dauertonus (Hypertonus).',
+ ursachen:'Vorzeitige Plazentalösung (Abruptio placentae).',
+ konsequenz:'NOTFALL. Notsectio. Kreuzblut + Blutprodukte bereitstellen (DIC-Risiko). Schockbehandlung.'},
+
+{id:'hypertonus',lab:'Uterus-Hypertonus',cat:'⚡ Notfälle',cls:'Pathologisch',
+ base:130,shvA:0.6,ltv:3,accR:0,decT:'late',fmR:0,mhrBase:90,mhrMode:'normal',dropout:'none',
+ wehD:[700,1100],wehR:[40,120],urgency:'urgent',
+ befund:'Tetanische Wehentätigkeit (Dauertonus, kaum Wehenpausen). Späte Dezelerationen. Reduzierte Variabilität.',
+ ursachen:'Überstimulation (Oxytocin), Prostaglandine, Plazentalösung.',
+ konsequenz:'Oxytocin STOPP. Akuttokolyse (Fenoterol 25 µg i.v.). Linksseitenlage. Bei Persistenz: Notsectio.'},
+
+/* === ARTEFAKTE === */
+{id:'mat_abl',lab:'Maternale Ableitung',cat:'⚠ Artefakte',cls:'Artefakt',
+ base:115,shvA:0.3,ltv:0,accR:0,decT:'none',fmR:0,mhrBase:115,mhrMode:'mat_copy',dropout:'none',
+ wehD:[400,700],wehR:[900,1500],urgency:'watch',
+ befund:'FHR und MHR deckungsgleich bei 100–130 bpm. Minimale Variabilität. Keine fetalen Akzelerationen.',
+ ursachen:'CTG registriert maternale statt fetale Herzfrequenz. Häufig bei Adipositas, früher SSW, intrauterinem Fruchttod.',
+ konsequenz:'Transducer-Position korrigieren. Ultraschall zur Verifikation der fetalen Herzaktion. DD: IUFT ausschließen!'},
+
+{id:'adipos_toco',lab:'Adipositas – TOCO-Artefakt',cat:'⚠ Artefakte',cls:'Artefakt',
+ base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ tocoNoise:18,
+ wehD:[400,700],wehR:[900,1500],urgency:'normal',
+ befund:'FHR normal. TOCO-Kanal stark verrauscht, Wehen nur schlecht abgrenzbar.',
+ ursachen:'Adipositas: externe TOCO-Ableitung insuffizient durch Bauchdeckenstärke.',
+ konsequenz:'Interne Wehenmessung (IUPC) erwägen. Alternativ: Palpation der Wehen + klinische Beurteilung.'},
+
+{id:'adipos_fhr',lab:'Adipositas – FHR-Verlust',cat:'⚠ Artefakte',cls:'Artefakt',
+ base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'moderate',
+ wehD:[400,700],wehR:[900,1500],urgency:'watch',
+ befund:'Intermittierender FHR-Signalverlust. Wenn abgeleitet: normale FHR.',
+ ursachen:'Adipositas: Doppler-Signal geht durch fetale Bewegung und Bauchdecke verloren.',
+ konsequenz:'Skalp-Elektrode (FSE) anlegen wenn möglich. Regelmäßige Ultraschallkontrolle.'},
+
+{id:'adipos_mhr',lab:'Adipositas – nur MHR sichtbar',cat:'⚠ Artefakte',cls:'Artefakt',
+ base:115,shvA:0.3,ltv:0,accR:0,decT:'none',fmR:0,mhrBase:90,mhrMode:'mhr_only',dropout:'severe',
+ wehD:[400,700],wehR:[900,1500],urgency:'watch',
+ befund:'Nur sporadische MHR-Registrierung, kein verwertbares FHR-Signal.',
+ ursachen:'Extreme Adipositas: Doppler kann fetale Herzaktion nicht detektieren.',
+ konsequenz:'FSE anlegen. Intermittierender Ultraschall. Ggf. kontinuierliche Sonographie durch erfahrenen Untersucher.'},
+
+{id:'no_signal',lab:'Signalverlust',cat:'⚠ Artefakte',cls:'Artefakt',
+ base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'severe',
+ wehD:[400,700],wehR:[900,1500],urgency:'watch',
+ befund:'Häufiger Signalverlust. Zwischen den Lücken: normale FHR.',
+ ursachen:'Schlechte Transducer-Position, fetale Bewegungen, Polyhydramnion.',
+ konsequenz:'Transducer repositionieren. Bei persistierendem Verlust: FSE. Nicht beurteilbares CTG ≠ normales CTG!'},
+
+{id:'doubling',lab:'Doubling-Artefakt',cat:'⚠ Artefakte',cls:'Artefakt',
+ base:140,shvA:1.5,ltv:8,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ doubling:true,
+ wehD:[400,700],wehR:[900,1500],urgency:'watch',
+ befund:'Angezeigte FHR ~280 bpm (verdoppelt). Tatsächliche FHR normal (~140 bpm).',
+ ursachen:'Autokorrelations-Artefakt: CTG-Gerät registriert jede Herzaktion doppelt.',
+ konsequenz:'Artefakt erkennen. Gerät resetten, Transducer repositionieren. Wahre FHR = angezeigte FHR / 2.'},
+
+/* === GEMINI === */
+{id:'gemini_both',lab:'Gemini – Konkordant',cat:'👶👶 Gemini',cls:'Normal',
+ base:140,shvA:1.5,ltv:7,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ twin:true,twin2Base:145,twin2ShvA:1.4,twin2Ltv:7,twin2AccR:0.003,
+ wehD:[400,700],wehR:[900,1500],urgency:'normal',
+ befund:'Zwilling A: Baseline 140 bpm (schwarz). Zwilling B: Baseline 145 bpm (blau). Beide mit normaler Variabilität und Akzelerationen.',
+ ursachen:'Konkordante Geminigravidität mit zwei unauffälligen Feten.',
+ konsequenz:'Beide Feten unauffällig. Sicherstellen, dass zwei separate Herzaktionen registriert werden (Kreuzkorrelation!).'},
+
+{id:'gemini_discordant',lab:'Gemini – Diskordant',cat:'👶👶 Gemini',cls:'Pathologisch',
+ base:140,shvA:1.5,ltv:7,accR:0.003,decT:'none',fmR:0.002,mhrBase:80,mhrMode:'normal',dropout:'none',
+ twin:true,twin2Base:165,twin2ShvA:0.3,twin2Ltv:1,twin2AccR:0,
+ wehD:[400,700],wehR:[900,1500],urgency:'urgent',
+ befund:'Zwilling A (schwarz): Normal, Baseline 140 bpm. Zwilling B (blau): Tachykard 165 bpm, fehlende Variabilität, keine Akzelerationen.',
+ ursachen:'Diskordantes CTG. V.a. TTTS, selektive IUGR, Nabelschnurpathologie eines Zwillings.',
+ konsequenz:'Dopplersonographie beider Feten. Tumorboard/Perinatalzentrum. Bei V.a. TTTS: Laserkoagulation erwägen.'}
+];
+
+/* ============================================================
+   CTG STATE
+   ============================================================ */
+const BUF=800;
+const STEPS=2;
+let curSc=null,eng=null;
+let fhrBuf,tocoBuf,fmBuf,mhrBuf,fhr2Buf;
+let running=false,animId=null,speed=1;
+let fmCount=0,fmWindow=[];
+let frameT=0;
+
+function resetBufs(){
+  fhrBuf=new Array(BUF).fill(null);
+  tocoBuf=new Array(BUF).fill(null);
+  fmBuf=new Array(BUF).fill(null);
+  mhrBuf=new Array(BUF).fill(null);
+  fhr2Buf=new Array(BUF).fill(null);
+  fmWindow=[];fmCount=0;frameT=0;
+}
+
+/* ============================================================
+   CANVAS SETUP
+   ============================================================ */
+let fhrCanvas,tocoCanvas,fmCanvas;
+let fhrCtx,tocoCtx,fmCtx;
+
+function getCssWidth(el){
+  let n=el;
+  while(n){if(n.offsetWidth>10)return n.offsetWidth;n=n.parentElement}
+  return window.innerWidth;
+}
+
+function resizeCanvas(c,cssH){
+  const dpr=window.devicePixelRatio||1;
+  const cssW=getCssWidth(c);
+  c.width=Math.round(cssW*dpr);
+  c.height=Math.round(cssH*dpr);
+  c.style.width=cssW+'px';
+  c.style.height=cssH+'px';
+}
+
+function resizeAll(){
+  if(!fhrCanvas)return;
+  resizeCanvas(fhrCanvas,240);
+  resizeCanvas(tocoCanvas,120);
+  resizeCanvas(fmCanvas,50);
+}
+
+/* ============================================================
+   ENGINE INIT / STEP
+   ============================================================ */
+function initEngine(sc){
+  curSc=sc;resetBufs();
+  eng={
+    ou:new OU(sc.base,0.002,0.3),
+    ar2:new AR2(sc.shvA),
+    ltv:new LTV(sc.ltv),
+    acc:new AccGen(sc.accR),
+    weh:new Wehen(sc.wehD,sc.wehR),
+    lateD:new LateDecel(),
+    varD:new VarDecel(),
+    mhr:new MHRGen(sc.mhrBase),
+    drop:new SignalDropout(sc.dropout),
+    sinPh:Math.random()*6.28
+  };
+  if(sc.twin){
+    eng.ou2=new OU(sc.twin2Base,0.002,0.3);
+    eng.ar2b=new AR2(sc.twin2ShvA);
+    eng.ltv2=new LTV(sc.twin2Ltv);
+    eng.acc2=new AccGen(sc.twin2AccR);
+  }
+}
+
+function stepEngine(){
+  if(!eng||!curSc)return;
+  const sc=curSc;
+
+  /* TOCO first (critical: weh.prog must be current for FHR) */
+  const tocoRaw=eng.weh.next();
+  const tocoBase=12;
+  const tocoAmp=55;
+  const tNoise=sc.tocoNoise||2;
+  const toco=clamp(tocoBase+tocoAmp*tocoRaw+(Math.random()-0.5)*tNoise,0,100);
+
+  /* MHR */
+  const mhrVal=eng.mhr.next();
+
+  /* FHR */
+  let fhrVal=null;
+  if(sc.mhrMode!=='mhr_only'){
+    if(sc.mhrMode==='mat_copy'){
+      /* Maternal ablation: FHR copies MHR */
+      fhrVal=mhrVal+(Math.random()-0.5)*1.6;
+    } else {
+      let base=eng.ou.next();
+      let shv=eng.ar2.next();
+      let ltv=eng.ltv.next();
+      let acc=eng.acc.next();
+
+      /* Sinusoidal override */
+      if(sc.sinus){
+        eng.sinPh+=sc.sinusFreq;
+        ltv=sc.sinusAmp*Math.sin(eng.sinPh);
+        shv=sc.shvA*randn();
+        acc=0;
+      }
+
+      /* Decelerations */
+      let dec=0;
+      if(sc.decT==='early'){
+        dec=-((sc.earlyDepth||20)*tocoRaw);
+      } else if(sc.decT==='late'){
+        eng.lateD.update(eng.weh.prog,eng.weh.active);
+        dec=eng.lateD.next();
+      } else if(sc.decT==='variable'){
+        eng.varD.tryTrigger(eng.weh.active);
+        dec=eng.varD.next();
+      }
+
+      fhrVal=base+shv+ltv+acc+dec;
+
+      /* Doubling artefact */
+      if(sc.doubling)fhrVal*=2;
+
+      fhrVal=clamp(fhrVal,50,210);
+    }
+
+    /* Signal dropout */
+    if(!eng.drop.next())fhrVal=null;
+  }
+
+  /* FM */
+  let fm=0;
+  if(Math.random()<(sc.fmR||0)){fm=1;fmWindow.push(frameT)}
+  /* Clean FM window (keep last ~1200 frames ≈ 10 simulated min) */
+  while(fmWindow.length>0&&fmWindow[0]<frameT-1200)fmWindow.shift();
+
+  /* Twin B */
+  let fhr2Val=null;
+  if(sc.twin&&eng.ou2){
+    const b=eng.ou2.next()+eng.ar2b.next()+eng.ltv2.next()+eng.acc2.next();
+    fhr2Val=clamp(b,50,210);
+  }
+
+  /* Push to buffers */
+  fhrBuf.shift();fhrBuf.push(fhrVal);
+  tocoBuf.shift();tocoBuf.push(toco);
+  fmBuf.shift();fmBuf.push(fm);
+  mhrBuf.shift();mhrBuf.push(mhrVal);
+  fhr2Buf.shift();fhr2Buf.push(fhr2Val);
+  frameT++;
+}
+
+/* ============================================================
+   STV CALCULATION
+   ============================================================ */
+function calcSTV(buf){
+  const valid=buf.filter(function(v){return v!=null}).slice(-240);
+  if(valid.length<10)return null;
+  let sad=0;
+  for(let i=1;i<valid.length;i++){
+    const rr1=60000/valid[i-1];
+    const rr2=60000/valid[i];
+    sad+=Math.abs(rr2-rr1);
+  }
+  return sad/(valid.length-1);
+}
+
+/* ============================================================
+   DRAWING
+   ============================================================ */
+const FHR_MIN=50,FHR_MAX=210,TOCO_MIN=0,TOCO_MAX=100;
+
+function drawGrid(ctx,w,h,dpr,scaleW,vMin,vMax,majorStep,minorStep){
+  const range=vMax-vMin;
+  /* Minor */
+  ctx.strokeStyle='rgba(200,60,60,0.10)';
+  ctx.lineWidth=Math.max(1,Math.round(dpr*0.4));
+  for(let v=vMin;v<=vMax;v+=minorStep){
+    const y=Math.round(h*(1-(v-vMin)/range));
+    ctx.beginPath();ctx.moveTo(scaleW,y);ctx.lineTo(w,y);ctx.stroke();
+  }
+  /* Vertical minor */
+  const plotW=w-scaleW;
+  const vStep=Math.round(40*dpr);
+  for(let x=scaleW+vStep;x<w;x+=vStep){
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();
+  }
+  /* Major */
+  ctx.strokeStyle='rgba(200,60,60,0.25)';
+  ctx.lineWidth=Math.round(dpr);
+  for(let v=vMin;v<=vMax;v+=majorStep){
+    const y=Math.round(h*(1-(v-vMin)/range));
+    ctx.beginPath();ctx.moveTo(scaleW,y);ctx.lineTo(w,y);ctx.stroke();
+  }
+  /* Major vertical */
+  const vmStep=Math.round(200*dpr);
+  for(let x=scaleW+vmStep;x<w;x+=vmStep){
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();
+  }
+  /* Scale labels */
+  ctx.fillStyle='#666';
+  ctx.font=Math.round(9*dpr)+'px "DM Mono",monospace';
+  ctx.textAlign='right';ctx.textBaseline='middle';
+  for(let v=vMin;v<=vMax;v+=majorStep){
+    const y=Math.round(h*(1-(v-vMin)/range));
+    ctx.fillText(String(v),scaleW-3*dpr,y);
+  }
+}
+
+function drawTrace(ctx,buf,w,h,dpr,scaleW,vMin,vMax,color,dash){
+  const range=vMax-vMin;
+  const plotW=w-scaleW;
+  ctx.strokeStyle=color;
+  ctx.lineWidth=Math.round(dpr);
+  if(dash)ctx.setLineDash(dash.map(function(d){return d*dpr}));
+  else ctx.setLineDash([]);
+  ctx.lineJoin='round';
+  let started=false;
+  ctx.beginPath();
+  for(let i=0;i<buf.length;i++){
+    const v=buf[i];
+    if(v==null){
+      if(started){ctx.stroke();started=false}
+      continue;
+    }
+    const x=scaleW+(i/BUF)*plotW;
+    const y=h*(1-(v-vMin)/range);
+    if(!started){ctx.moveTo(x,y);started=true}
+    else ctx.lineTo(x,y);
+  }
+  if(started)ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawDropoutRegions(ctx,buf,w,h,dpr,scaleW,vMin,vMax){
+  const range=vMax-vMin;
+  const plotW=w-scaleW;
+  const y120=h*(1-(120-vMin)/range);
+  for(let i=0;i<buf.length;i++){
+    if(buf[i]==null){
+      const x=scaleW+(i/BUF)*plotW;
+      const pw=Math.max(1,plotW/BUF);
+      ctx.fillStyle='rgba(245,230,200,0.5)';
+      ctx.fillRect(x,0,pw,h);
+    }
+  }
+  /* Dashed line at 120 bpm in dropout regions */
+  ctx.strokeStyle='rgba(180,160,120,0.5)';
+  ctx.lineWidth=Math.max(1,Math.round(dpr*0.5));
+  ctx.setLineDash([4*dpr,4*dpr]);
+  let inDrop=false;
+  ctx.beginPath();
+  for(let i=0;i<buf.length;i++){
+    const x=scaleW+(i/BUF)*plotW;
+    if(buf[i]==null){
+      if(!inDrop){ctx.moveTo(x,y120);inDrop=true}
+      else ctx.lineTo(x,y120);
+    } else {
+      if(inDrop){ctx.stroke();ctx.beginPath();inDrop=false}
+    }
+  }
+  if(inDrop)ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawFHR(){
+  const c=fhrCanvas,ctx=fhrCtx;
+  const w=c.width,h=c.height,dpr=window.devicePixelRatio||1;
+  const scaleW=Math.round(32*dpr);
+  ctx.fillStyle='#faf6ee';ctx.fillRect(0,0,w,h);
+  drawGrid(ctx,w,h,dpr,scaleW,FHR_MIN,FHR_MAX,30,10);
+  drawDropoutRegions(ctx,fhrBuf,w,h,dpr,scaleW,FHR_MIN,FHR_MAX);
+  /* MHR dashed red */
+  drawTrace(ctx,mhrBuf,w,h,dpr,scaleW,FHR_MIN,FHR_MAX,'rgba(200,50,50,0.5)',[6,4]);
+  /* Twin B dashed blue */
+  if(curSc&&curSc.twin){
+    drawTrace(ctx,fhr2Buf,w,h,dpr,scaleW,FHR_MIN,FHR_MAX,'rgba(60,100,200,0.7)',[6,4]);
+  }
+  /* FHR solid black */
+  drawTrace(ctx,fhrBuf,w,h,dpr,scaleW,FHR_MIN,FHR_MAX,'#111',null);
+}
+
+function drawTOCO(){
+  const c=tocoCanvas,ctx=tocoCtx;
+  const w=c.width,h=c.height,dpr=window.devicePixelRatio||1;
+  const scaleW=Math.round(32*dpr);
+  ctx.fillStyle='#faf6ee';ctx.fillRect(0,0,w,h);
+  drawGrid(ctx,w,h,dpr,scaleW,TOCO_MIN,TOCO_MAX,25,5);
+  drawTrace(ctx,tocoBuf,w,h,dpr,scaleW,TOCO_MIN,TOCO_MAX,'#1a3a6a',null);
+}
+
+function drawFM(){
+  const c=fmCanvas,ctx=fmCtx;
+  const w=c.width,h=c.height,dpr=window.devicePixelRatio||1;
+  const scaleW=Math.round(32*dpr);
+  const plotW=w-scaleW;
+  ctx.fillStyle='#f5f0e4';ctx.fillRect(0,0,w,h);
+  /* Scale label */
+  ctx.fillStyle='#999';
+  ctx.font=Math.round(8*dpr)+'px "DM Mono",monospace';
+  ctx.textAlign='right';ctx.textBaseline='middle';
+  ctx.fillText('FM',scaleW-3*dpr,h/2);
+  /* Ticks */
+  ctx.strokeStyle='#2a7a2a';ctx.lineWidth=Math.round(dpr*1.5);
+  for(let i=0;i<fmBuf.length;i++){
+    if(fmBuf[i]){
+      const x=scaleW+(i/BUF)*plotW;
+      ctx.beginPath();ctx.moveTo(x,h*0.2);ctx.lineTo(x,h*0.8);ctx.stroke();
+    }
+  }
+}
+
+function updateReadouts(){
+  const lastFHR=fhrBuf.filter(function(v){return v!=null}).slice(-1)[0];
+  const lastTOCO=tocoBuf.filter(function(v){return v!=null}).slice(-1)[0];
+  const lastMHR=mhrBuf.filter(function(v){return v!=null}).slice(-1)[0];
+  const stv=calcSTV(fhrBuf);
+  const fmRate=fmWindow.length;
+
+  const elFHR=document.getElementById('roFHR');
+  const elTOCO=document.getElementById('roTOCO');
+  const elFM=document.getElementById('roFM');
+  const elMHR=document.getElementById('roMHR');
+  const elSTV=document.getElementById('roSTV');
+  const elFIGO=document.getElementById('roFIGO');
+
+  if(lastFHR!=null){
+    const v=Math.round(lastFHR);
+    elFHR.textContent=v+' bpm';
+    elFHR.className='readout-value '+(v>=110&&v<=160?'rv-normal':v>=100&&v<=170?'rv-warn':'rv-alert');
+  } else elFHR.textContent='---';
+
+  if(lastTOCO!=null){elTOCO.textContent=Math.round(lastTOCO)+' kPa';elTOCO.className='readout-value rv-info'}
+  else elTOCO.textContent='---';
+
+  elFM.textContent=fmRate+'/10min';elFM.className='readout-value rv-info';
+
+  if(lastMHR!=null){elMHR.textContent=Math.round(lastMHR)+' bpm';elMHR.className='readout-value rv-info'}
+  else elMHR.textContent='---';
+
+  if(stv!=null){
+    const sv=stv.toFixed(1);
+    elSTV.textContent=sv+' ms';
+    elSTV.className='readout-value '+(stv>4.5?'rv-normal':stv>=3?'rv-warn':'rv-alert');
+  } else elSTV.textContent='---';
+
+  if(curSc){
+    const cls=quizActive&&!quizAnswered?'???':curSc.cls;
+    elFIGO.textContent=cls;
+    if(cls==='???'){elFIGO.className='readout-value';elFIGO.style.color='var(--warn)'}
+    else{
+      elFIGO.style.color='';
+      elFIGO.className='readout-value '+(cls==='Normal'?'rv-normal':cls==='Suspekt'?'rv-warn':'rv-alert');
+    }
+  }
+}
+
+/* ============================================================
+   ANIMATION LOOP
+   ============================================================ */
+let lastDraw=0;
+function animLoop(ts){
+  if(!running){animId=null;return}
+  animId=requestAnimationFrame(animLoop);
+  const stepsNow=STEPS*speed;
+  for(let s=0;s<stepsNow;s++)stepEngine();
+  /* Throttle drawing to ~30fps for performance */
+  if(ts-lastDraw>30){
+    drawFHR();drawTOCO();drawFM();updateReadouts();
+    lastDraw=ts;
+  }
+}
+
+function startSim(){
+  if(running)return;running=true;
+  document.getElementById('btnPlay').textContent='⏸';
+  animId=requestAnimationFrame(animLoop);
+}
+function stopSim(){
+  running=false;
+  document.getElementById('btnPlay').textContent='▶';
+  if(animId){cancelAnimationFrame(animId);animId=null}
+}
+
+/* ============================================================
+   SCENARIO LOADING
+   ============================================================ */
+function loadScenario(id,hideInfo){
+  const sc=SCENARIOS.find(function(s){return s.id===id});
+  if(!sc)return;
+  stopSim();
+  initEngine(sc);
+  resizeAll();
+  if(!hideInfo)updateInfoPanel(sc);
+  startSim();
+}
+
+function updateInfoPanel(sc){
+  const el=document.getElementById('infoPanel');
+  const uCls={normal:'info-normal',watch:'info-watch',urgent:'info-urgent'}[sc.urgency]||'';
+  const uIcon={normal:'✅',watch:'👁',urgent:'🚨'}[sc.urgency]||'';
+  el.innerHTML=
+    '<h3>'+sc.lab+'</h3>'+
+    '<div class="info-section"><h4>📋 Befund</h4><p>'+sc.befund+'</p></div>'+
+    '<div class="info-section"><h4>🔍 Mögliche Ursachen</h4><p>'+sc.ursachen+'</p></div>'+
+    '<div class="info-section '+uCls+'"><h4>'+uIcon+' Konsequenz</h4><p>'+sc.konsequenz+'</p></div>';
+}
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+let quizActive=false,quizAnswered=false;
+let quizTimer=30,quizTimerId=null;
+let quizScore=0,quizTotal=0;
+let quizPool=[];
+let quizCorrectIdx=-1;
+let quizOpts=[];
+
+function startQuiz(){
+  quizActive=true;quizAnswered=false;
+  quizScore=0;quizTotal=0;
+  quizPool=SCENARIOS.map(function(_,i){return i});
+  shuffle(quizPool);
+  document.getElementById('quizPanel').classList.add('active');
+  document.getElementById('quizScore').style.display='inline';
+  updateQuizScore();
+  nextQuestion();
+}
+
+function endQuiz(){
+  quizActive=false;
+  document.getElementById('quizContent').innerHTML=
+    '<h3>Quiz beendet</h3><p>Ergebnis: <strong>'+quizScore+' / '+quizTotal+'</strong> ('+
+    Math.round(quizScore/Math.max(quizTotal,1)*100)+' %)</p>'+
+    '<button class="btn" onclick="closeQuiz()">Schließen</button>';
+}
+
+function closeQuiz(){
+  quizActive=false;quizAnswered=false;
+  document.getElementById('quizPanel').classList.remove('active');
+  document.getElementById('quizScore').style.display='none';
+  clearInterval(quizTimerId);
+  if(curSc)updateInfoPanel(curSc);
+}
+
+function updateQuizScore(){
+  document.getElementById('quizScore').textContent='Score: '+quizScore+'/'+quizTotal;
+}
+
+function nextQuestion(){
+  if(quizPool.length===0){endQuiz();return}
+  quizAnswered=false;
+  const idx=quizPool.pop();
+  const sc=SCENARIOS[idx];
+
+  /* Load scenario (hidden) */
+  loadScenario(sc.id,true);
+
+  /* Hide info panel during quiz */
+  document.getElementById('infoPanel').innerHTML=
+    '<h3>Quiz-Modus</h3><p class="quiz-hidden">???</p><p style="color:var(--muted)">Klassifiziere das CTG!</p>';
+
+  /* Build options */
+  const correct=sc.lab;
+  const allLabs=SCENARIOS.map(function(s){return s.lab}).filter(function(v,i,a){return a.indexOf(v)===i&&v!==correct});
+  shuffle(allLabs);
+  const wrongOpts=allLabs.slice(0,3);
+  quizOpts=[correct].concat(wrongOpts);
+  shuffle(quizOpts);
+  quizCorrectIdx=quizOpts.indexOf(correct);
+
+  /* Timer */
+  quizTimer=30;
+  clearInterval(quizTimerId);
+  quizTimerId=setInterval(quizTick,1000);
+  updateTimerBar();
+
+  /* Render */
+  let html='<div class="quiz-opts">';
+  for(let i=0;i<quizOpts.length;i++){
+    html+='<button class="quiz-opt" data-idx="'+i+'" onclick="answerQuiz('+i+')">'+
+      String.fromCharCode(65+i)+'. '+quizOpts[i]+'</button>';
+  }
+  html+='</div><div id="quizResult"></div>';
+  document.getElementById('quizContent').innerHTML=html;
+}
+
+function quizTick(){
+  quizTimer--;
+  updateTimerBar();
+  if(quizTimer<=0){clearInterval(quizTimerId);answerQuiz(-1)}
+}
+
+function updateTimerBar(){
+  const bar=document.getElementById('quizTimerBar');
+  bar.style.width=(quizTimer/30*100)+'%';
+  bar.className='quiz-timer-bar'+(quizTimer<=5?' danger':quizTimer<=15?' warn':'');
+}
+
+function answerQuiz(idx){
+  if(quizAnswered)return;
+  quizAnswered=true;
+  clearInterval(quizTimerId);
+  quizTotal++;
+
+  const isCorrect=idx===quizCorrectIdx;
+  if(isCorrect)quizScore++;
+  updateQuizScore();
+
+  /* Highlight buttons */
+  const btns=document.querySelectorAll('.quiz-opt');
+  btns.forEach(function(b){
+    const bIdx=parseInt(b.getAttribute('data-idx'));
+    b.classList.add('disabled');
+    if(bIdx===quizCorrectIdx)b.classList.add('correct');
+    else if(bIdx===idx)b.classList.add('wrong');
+  });
+
+  /* Show result + info */
+  const sc=curSc;
+  const resEl=document.getElementById('quizResult');
+  resEl.innerHTML=
+    '<div class="quiz-result '+(isCorrect?'pass':'fail')+'">'+
+    (isCorrect?'✅ Richtig!':'❌ Falsch! Korrekt: <strong>'+quizOpts[quizCorrectIdx]+'</strong>')+
+    '</div>'+
+    '<div class="info-section" style="margin-top:8px"><h4>📋 Befund</h4><p>'+sc.befund+'</p></div>'+
+    '<div class="info-section"><h4>🔍 Ursachen</h4><p>'+sc.ursachen+'</p></div>'+
+    '<button class="btn" style="margin-top:10px" onclick="nextQuestion()">Nächste Frage →</button>';
+
+  /* Reveal FIGO */
+  updateReadouts();
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function showModule(id){
+  document.querySelectorAll('.module').forEach(function(m){m.classList.remove('active')});
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active')});
+  const sec=document.getElementById('sec-'+id);
+  if(sec)sec.classList.add('active');
+  const btn=document.querySelector('.nav-btn[data-mod="'+id+'"]');
+  if(btn)btn.classList.add('active');
+
+  if(id==='ctg'){
+    resizeAll();
+    if(curSc&&!running)startSim();
+    else if(!curSc)loadScenario('normal');
+  } else {
+    stopSim();
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init(){
+  fhrCanvas=document.getElementById('fhrCanvas');
+  tocoCanvas=document.getElementById('tocoCanvas');
+  fmCanvas=document.getElementById('fmCanvas');
+  fhrCtx=fhrCanvas.getContext('2d');
+  tocoCtx=tocoCanvas.getContext('2d');
+  fmCtx=fmCanvas.getContext('2d');
+
+  /* Populate scenario select */
+  const sel=document.getElementById('scenarioSelect');
+  let lastCat='';
+  let optgroup=null;
+  SCENARIOS.forEach(function(sc){
+    if(sc.cat!==lastCat){
+      if(optgroup)sel.appendChild(optgroup);
+      optgroup=document.createElement('optgroup');
+      optgroup.label=sc.cat;
+      lastCat=sc.cat;
+    }
+    const opt=document.createElement('option');
+    opt.value=sc.id;opt.textContent=sc.lab;
+    optgroup.appendChild(opt);
+  });
+  if(optgroup)sel.appendChild(optgroup);
+
+  sel.addEventListener('change',function(){
+    if(quizActive)closeQuiz();
+    loadScenario(this.value);
+  });
+
+  /* Buttons */
+  document.getElementById('btnPlay').addEventListener('click',function(){
+    if(running)stopSim();else{if(!curSc)loadScenario('normal');else startSim()}
+  });
+
+  document.getElementById('btnSpeed').addEventListener('click',function(){
+    speed=speed===1?2:speed===2?4:1;
+    this.textContent=speed+'×';
+  });
+
+  document.getElementById('btnQuiz').addEventListener('click',function(){
+    if(quizActive)closeQuiz();else startQuiz();
+  });
+
+  /* Navigation */
+  document.querySelectorAll('.nav-btn').forEach(function(b){
+    b.addEventListener('click',function(){showModule(this.getAttribute('data-mod'))});
+  });
+  document.querySelectorAll('.module-card').forEach(function(c){
+    c.addEventListener('click',function(){showModule(this.getAttribute('data-mod'))});
+  });
+
+  /* Canvas resize */
+  resizeAll();
+  setTimeout(resizeAll,100);
+  setTimeout(resizeAll,500);
+  window.addEventListener('resize',resizeAll);
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
