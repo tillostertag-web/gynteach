@@ -1174,6 +1174,19 @@ function drawFHR(){
   const w=c.width,h=c.height,dpr=window.devicePixelRatio||1;
   const scaleW=Math.round(32*dpr);
   ctx.fillStyle='#faf6ee';ctx.fillRect(0,0,w,h);
+  /* Normal zone 110-160 bpm */
+  const range=FHR_MAX-FHR_MIN;
+  const y160=Math.round(h*(1-(160-FHR_MIN)/range));
+  const y110=Math.round(h*(1-(110-FHR_MIN)/range));
+  ctx.fillStyle='rgba(60,180,90,0.08)';
+  ctx.fillRect(scaleW,y160,w-scaleW,y110-y160);
+  /* Zone borders */
+  ctx.strokeStyle='rgba(60,180,90,0.25)';
+  ctx.lineWidth=Math.round(dpr);
+  ctx.setLineDash([6*dpr,4*dpr]);
+  ctx.beginPath();ctx.moveTo(scaleW,y160);ctx.lineTo(w,y160);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(scaleW,y110);ctx.lineTo(w,y110);ctx.stroke();
+  ctx.setLineDash([]);
   drawGrid(ctx,w,h,dpr,scaleW,FHR_MIN,FHR_MAX,30,10);
   drawDropoutRegions(ctx,fhrBuf,w,h,dpr,scaleW,FHR_MIN,FHR_MAX);
   /* MHR dashed red */
